@@ -1,0 +1,462 @@
+/* App.css */
+:root {
+  --primary-color: #008080; /* Teal */
+  --primary-light: #00a3a3;
+  --primary-dark: #006666;
+  --text-color: #000000;
+  --text-light: #ffffff;
+  --background-light: #ffffff;
+  --background-dark: #1a1a1a;
+  --accent-color: #008080;
+  --border-color: #e0e0e0;
+  --error-color: #ff4444;
+  --success-color: #00c851;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.3s ease;
+}
+
+/* Base styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: var(--transition);
+  line-height: 1.6;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.app.light {
+  background-color: var(--background-light);
+  color: var(--text-color);
+}
+
+.app.dark {
+  background-color: var(--background-dark);
+  color: var(--text-light);
+}
+
+/* Layout */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  background-color: var(--primary-color);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: var(--text-light);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.logo:hover {
+  transform: translateY(-2px);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.nav-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  font-size: 1.1rem;
+}
+
+.nav-links a:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+.main-content {
+  flex: 1;
+  padding: 3rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Grid Layout */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.grid-item {
+  background: var(--background-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Converter Components */
+.converter-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .converter-section {
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+}
+
+.input-section,
+.output-section {
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  box-sizing: border-box;
+  transition: var(--transition);
+}
+
+.input-section:hover,
+.output-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Form Elements */
+textarea {
+  width: 100%;
+  min-height: 300px;
+  padding: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  background: var(--background-light);
+  color: var(--text-color);
+  box-sizing: border-box;
+  transition: var(--transition);
+}
+
+textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
+}
+
+select {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--background-light);
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.1);
+}
+
+.left{
+  margin-right: 30px;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 160px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.primary-button {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+}
+
+.secondary-button {
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--primary-color);
+  padding: 2rem;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.footer-links a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+  transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .nav-links a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .main-content {
+    padding: 1.5rem 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+  .input-section,
+  .output-section {
+    padding: 1.5rem;
+  }
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.mb-2 {
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  color: var(--error-color);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background-color: rgba(255, 68, 68, 0.1);
+  margin: 1.5rem 0;
+  font-weight: 500;
+}
+
+.success-message {
+  color: var(--success-color);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background-color: rgba(0, 200, 81, 0.1);
+  margin: 1.5rem 0;
+  font-weight: 500;
+}
+
+/* File Uploader */
+.file-uploader {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2.5rem;
+  text-align: center;
+  transition: var(--transition);
+  background: var(--background-light);
+  margin-bottom: 1.5rem;
+  cursor: pointer;
+}
+
+.file-uploader.drag-active {
+  border-color: var(--primary-color);
+  background: rgba(0, 128, 128, 0.05);
+  transform: scale(1.02);
+}
+
+.file-input {
+  display: none;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.file-label span {
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.file-types {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.7;
+}
+
+/* Headings */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--primary-color);
+}
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+}
+
+/* Dark mode adjustments */
+.app.dark h1, .app.dark h2, .app.dark h3{
+  color: #ffffff;
+}
+.app.dark .input-section,
+.app.dark .output-section {
+  background: var(--background-dark);
+  border-color: #333;
+}
+
+.app.dark textarea,
+.app.dark select {
+  background: var(--background-dark);
+  color: var(--text-light);
+  border-color: #333;
+}
+
+.app.dark .file-uploader {
+  background: var(--background-dark);
+  border-color: #333;
+}
+
+.app.dark .file-label span,
+.app.dark .file-types {
+  color: var(--text-light);
+}
