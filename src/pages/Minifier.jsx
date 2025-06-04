@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert } from 'react-bootstrap';
 import '../styles/Minifier.css';
+import { useTheme } from '../context/ThemeContext';
 
 // Import browser-compatible versions of the minifiers
 import * as csso from 'csso';
@@ -33,6 +34,7 @@ const Minifier = () => {
     const [error, setError] = useState('');
     const [stats, setStats] = useState(null);
     const [copySuccess, setCopySuccess] = useState(false);
+    const { theme } = useTheme();
 
     const minifyCode = async () => {
         try {
@@ -137,7 +139,7 @@ const Minifier = () => {
     };
 
     return (
-        <Container className="minifier-container">
+        <div className={`minifier-container ${theme === 'dark' ? 'dark' : ''}`}>
             <div className="minifier-header">
                 <h1>Code Minifier</h1>
                 <p>Minify your HTML, CSS, or JavaScript code to reduce file size and improve loading times.</p>
@@ -211,7 +213,7 @@ const Minifier = () => {
                     </div>
                 )}
             </div>
-        </Container>
+        </div>
     );
 };
 

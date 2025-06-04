@@ -1,12 +1,15 @@
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // ThemeToggle: Allows users to switch between light and dark themes
-const ThemeToggle = ({ theme, onThemeChange }) => {
+const ThemeToggle = () => {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="theme-toggle" role="region" aria-label="Theme Toggle">
       <button 
-        onClick={onThemeChange} 
+        onClick={toggleTheme} 
         aria-label={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} theme`}
         className="theme-toggle-button"
       >

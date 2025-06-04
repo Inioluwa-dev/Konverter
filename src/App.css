@@ -444,9 +444,17 @@ h2 {
 }
 
 /* Dark mode adjustments */
-.app.dark h1, .app.dark h2, .app.dark h3{
-  color: #ffffff;
+.app.dark {
+  background-color: var(--background-dark);
+  color: var(--text-light);
 }
+
+.app.dark h1, 
+.app.dark h2, 
+.app.dark h3 {
+  color: var(--text-light);
+}
+
 .app.dark .input-section,
 .app.dark .output-section {
   background: var(--background-dark);
@@ -468,4 +476,96 @@ h2 {
 .app.dark .file-label span,
 .app.dark .file-types {
   color: var(--text-light);
+}
+
+.app.dark .grid-item {
+  background: var(--background-dark);
+  border-color: #333;
+}
+
+.app.dark .error-message {
+  background-color: rgba(255, 68, 68, 0.2);
+  color: #ff6b6b;
+}
+
+.app.dark .success-message {
+  background-color: rgba(0, 200, 81, 0.2);
+  color: #00e676;
+}
+
+.app.dark .secondary-button {
+  color: var(--text-light);
+  border-color: var(--text-light);
+}
+
+.app.dark .secondary-button:hover {
+  background-color: var(--text-light);
+  color: var(--background-dark);
+}
+
+.app.dark .footer {
+  background-color: var(--background-dark);
+  border-top: 1px solid #333;
+}
+
+.app.dark .footer-links a {
+  color: var(--text-light);
+}
+
+.app.dark .footer-links a:hover {
+  color: var(--text-light);
+}
+
+/* Output Section Styles */
+.output-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.copy-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.copy-button:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.copy-button i {
+  font-size: 1.1rem;
+}
+
+/* Dark mode adjustments */
+.app.dark .copy-button {
+  background-color: var(--primary-color);
+}
+
+.app.dark .copy-button:hover {
+  background-color: var(--primary-light);
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .output-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .copy-button {
+    width: 100%;
+    justify-content: center;
+  }
 }

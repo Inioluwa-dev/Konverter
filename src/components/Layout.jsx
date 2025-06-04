@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { useTheme } from '../context/ThemeContext';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../styles/Layout.css';
 
-const Layout = ({ children, theme, onThemeChange }) => {
+const Layout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme } = useTheme();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -16,7 +18,7 @@ const Layout = ({ children, theme, onThemeChange }) => {
   };
 
   return (
-    <div className="layout">
+    <div className={`layout ${theme === 'dark' ? 'dark' : ''}`}>
       <header className="header" role="banner">
         <nav className="nav" role="navigation" aria-label="Main Navigation">
           <div className="nav-left">
@@ -38,7 +40,7 @@ const Layout = ({ children, theme, onThemeChange }) => {
             <Link to="/minifier" onClick={closeMenu}>Minifier</Link>
             <Link to="/about" onClick={closeMenu}>About</Link>
             <div className="nav-divider"></div>
-            <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
+            <ThemeToggle />
           </div>
         </nav>
       </header>
