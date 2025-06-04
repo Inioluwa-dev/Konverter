@@ -4,7 +4,6 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
 import Converter from './pages/Converter';
-import Minifier from './pages/Minifier';
 import './App.css';
 
 const App = () => {
@@ -22,7 +21,6 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/converter" element={<Converter />} />
-            <Route path="/minifier" element={<Minifier />} />
           </Routes>
         </Layout>
       </div>

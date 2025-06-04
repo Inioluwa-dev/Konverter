@@ -25,6 +25,7 @@ html, body, #root {
   padding: 0;
   box-sizing: border-box;
   width: 100%;
+
 }
 
 body {
@@ -247,30 +248,19 @@ select:focus {
   color: var(--text-light);
 }
 
-.primary-button:hover {
-  background-color: var(--primary-light);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.primary-button:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm);
-}
-
 .secondary-button {
   background-color: transparent;
-  color: var(--primary-color);
   border: 2px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
+.primary-button:hover,
 .secondary-button:hover {
-  background-color: var(--primary-color);
-  color: var(--text-light);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
+.primary-button:active,
 .secondary-button:active {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
@@ -350,7 +340,6 @@ select:focus {
   .primary-button,
   .secondary-button {
     width: 100%;
-    margin: 0.5rem 0;
   }
 
   .input-section,
@@ -374,18 +363,20 @@ select:focus {
 
 .error-message {
   color: var(--error-color);
-  background-color: rgba(255, 68, 68, 0.1);
   padding: 1rem;
   border-radius: var(--border-radius);
-  margin: 1rem 0;
+  background-color: rgba(255, 68, 68, 0.1);
+  margin: 1.5rem 0;
+  font-weight: 500;
 }
 
 .success-message {
   color: var(--success-color);
-  background-color: rgba(0, 200, 81, 0.1);
   padding: 1rem;
   border-radius: var(--border-radius);
-  margin: 1rem 0;
+  background-color: rgba(0, 200, 81, 0.1);
+  margin: 1.5rem 0;
+  font-weight: 500;
 }
 
 /* File Uploader */

@@ -1,23 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import '../styles/Layout.css';
 
 const Layout = ({ children, theme, onThemeChange }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className="layout">
       <header className="header" role="banner">
         <nav className="nav" role="navigation" aria-label="Main Navigation">
-          <Link to="/" className="logo" aria-label="Konverter Home">
-            Konverter
-          </Link>
-          <div className="nav-links">
-            <Link to="/" aria-label="Home">Home</Link>
-            <Link to="/converter" aria-label="Converter">Converter</Link>
-            <Link to="/about" aria-label="About">About</Link>
+          <div className="nav-left">
+            <Link to="/" className="logo" aria-label="Konverter Home">
+              <i className="bi bi-code-square me-2"></i>
+              Konverter
+            </Link>
+            <button 
+              className="menu-button" 
+              onClick={toggleMenu}
+              aria-label="Toggle Menu"
+            >
+              <i className={`bi ${isMenuOpen ? 'bi-x-lg' : 'bi-list'}`}></i>
+            </button>
           </div>
-          <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
+          <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
+            <Link to="/" onClick={closeMenu}>Home</Link>
+            <Link to="/converter" onClick={closeMenu}>Converter</Link>
+            <Link to="/minifier" onClick={closeMenu}>Minifier</Link>
+            <Link to="/about" onClick={closeMenu}>About</Link>
+            <div className="nav-divider"></div>
+            <ThemeToggle theme={theme} onThemeChange={onThemeChange} />
+          </div>
         </nav>
       </header>
+
+      <div 
+        className={`menu-overlay ${isMenuOpen ? 'active' : ''}`} 
+        onClick={closeMenu}
+      />
 
       <main className="main-content" role="main">
         {children}
@@ -27,7 +56,7 @@ const Layout = ({ children, theme, onThemeChange }) => {
         <div className="footer-content">
           <p style={{ color: 'white' }}>&copy; {new Date().getFullYear()} Comibyte Team. All rights reserved.</p>
           <div className="footer-links">
-            <Link to="/about" aria-label="About">About</Link>
+            <Link to="/about">About</Link>
             <a href="https://github.com/Inioluwa-dev/konverter" target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository">
               GitHub
             </a>

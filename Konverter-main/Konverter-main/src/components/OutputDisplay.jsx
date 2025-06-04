@@ -1,0 +1,38 @@
+import React from 'react';
+
+// OutputDisplay: Displays the converted output and handles downloading
+const OutputDisplay = ({ output }) => {
+  // Handle downloading the output as a text file
+  const handleDownload = () => {
+    if (!output.trim()) {
+      alert('Error: No output to download');
+      return;
+    }
+    const blob = new Blob([output], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'converted_output.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="output-display" role="region" aria-label="Output Display">
+      <h2>Output Display</h2>
+      <textarea
+        value={output}
+        readOnly
+        placeholder="Output will appear here..."
+        rows="10"
+        style={{ width: '100%' }}
+        aria-label="Converted Output"
+      />
+      <button onClick={handleDownload} aria-label="Download Output">Download Output</button>
+    </div>
+  );
+};
+
+export default OutputDisplay; 
