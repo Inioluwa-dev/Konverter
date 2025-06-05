@@ -1,82 +1,125 @@
-# Konverter
+# Comibyte CSV/JSON Converter
 
-A powerful web application for code conversion and minification, built with React and modern web technologies.
+![Comibyte CSV/JSON Converter](src/assets/images/Konverter%20Home.png)
 
-## Features
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/badge/Website-Kon--verter.web.app-blue)](https://Kon-verter.web.app)
+[![Contact](https://img.shields.io/badge/Contact-Misterhge%40gmail.com-green)](mailto:Misterhge@gmail.com)
 
-### Code Conversion
-- Convert code between different programming languages
-- Support for multiple data formats (JSON, XML, YAML)
-- Real-time conversion with instant results
-- Clean and intuitive interface
+## Professional Data Format Converter
 
-### Code Minification
-- Minify JavaScript, CSS, and HTML code
-- Reduce file sizes and improve loading times
-- Unminify code for better readability
-- Local processing for enhanced security
+Comibyte CSV/JSON Converter is a powerful, user-friendly tool designed for seamless conversion between CSV and JSON formats. Built with modern web technologies, it offers a robust solution for developers, data analysts, and anyone working with data format conversions.
 
-## Technologies Used
+## 🌟 Key Features
 
-- React.js
-- Vite
-- Bootstrap Icons
-- Terser (for JavaScript minification)
-- Custom CSS with modern features
-- Responsive design for all devices
+- **Bidirectional Conversion**: Convert between CSV and JSON formats effortlessly
+- **File Upload Support**: Drag and drop or select files for conversion
+- **Custom Delimiter Selection**: Choose your preferred delimiter for CSV files
+- **Dark Mode Support**: Comfortable viewing in any lighting condition
+- **Real-time Conversion**: Instant results as you type
+- **Copy to Clipboard**: One-click copy of converted data
+- **Download Options**: Save converted files in multiple formats
+- **Responsive Design**: Works seamlessly on all devices
+- **Error Handling**: Clear error messages for invalid inputs
+- **Modern UI**: Clean, intuitive interface for the best user experience
 
-## Getting Started
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v14.0.0 or higher)
+- npm or yarn package manager
+
+### Installation
 
 1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/konverter.git
-```
+   ```bash
+   git clone https://github.com/comibyte/konverter.git
+   ```
 
 2. Install dependencies:
-```bash
-cd konverter
-npm install
-```
+   ```bash
+   cd konverter
+   npm install
+   ```
 
 3. Start the development server:
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. Build for production:
+   ```bash
+   npm run build
+   ```
 
-## Usage
+## 💻 Usage
 
-### Code Conversion
-1. Navigate to the Converter page
-2. Select your input and output formats
-3. Paste your code in the input area
-4. Click "Convert" to see the result
+1. Select conversion type (CSV to JSON or JSON to CSV)
+2. Upload a file or paste your data
+3. Choose delimiter (for CSV files)
+4. Click convert
+5. Copy or download the result
 
-### Code Minification
-1. Navigate to the Minifier page
-2. Select the code type (JavaScript, CSS, or HTML)
-3. Paste your code in the input area
-4. Click "Minify" to compress your code
-5. Use "Unminify" to restore formatting
+## 🔧 Technical Details
 
-## Contributing
+- Built with React and Vite
+- Uses modern JavaScript features
+- Implements responsive design principles
+- Optimized for performance
+- Secure and reliable
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 📱 Browser Support
 
-## License
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Opera (latest)
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 🔒 Security
 
-### Personal License
-This software is also licensed to Comibyte Team for personal use. All rights reserved.
+- No data is stored on our servers
+- All processing happens in your browser
+- Secure file handling
+- Regular security updates
 
-## Author
+## 📄 License
 
-- Inioluwa
-- GitHub: [@Inioluwa-Dev](https://github.com/Inioluwa-dev)
+This software is proprietary and confidential. All rights reserved. See the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## 🤝 Support
 
-- Thanks to all contributors and users of this project
-- Special thanks to the open-source community for their invaluable tools and libraries
+For support, feature requests, or licensing inquiries, please contact:
+- Email: [Misterhge@gmail.com](mailto:Misterhge@gmail.com)
+- Website: [Kon-verter.web.app](https://Kon-verter.web.app)
+
+## 🌐 Related Resources
+
+- [CSV Format Documentation](https://tools.ietf.org/html/rfc4180)
+- [JSON Format Documentation](https://www.json.org/json-en.html)
+- [React Documentation](https://reactjs.org/)
+- [Vite Documentation](https://vitejs.dev/)
+
+## 📈 Performance
+
+- Fast conversion speed
+- Minimal memory usage
+- Optimized for large files
+- Efficient error handling
+
+## 🔄 Updates
+
+Regular updates and improvements are made to ensure:
+- Latest security patches
+- New features
+- Performance optimizations
+- Bug fixes
+
+## 📊 Analytics
+
+The application includes anonymous usage analytics to help improve the service. No personal data is collected.
+
+---
+
+© 2025 Comibyte Team. All Rights Reserved.
