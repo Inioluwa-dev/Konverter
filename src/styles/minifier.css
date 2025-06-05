@@ -17,9 +17,10 @@
 }
 
 .minifier-header p {
-  font-size: 1.1rem;
-  color: var(--text-color);
-  max-width: 600px;
+  color: var(--color-gray-600);
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  max-width: 800px;
   margin: 0 auto;
 }
 

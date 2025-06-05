@@ -7,7 +7,10 @@ const Converter = () => {
   const [output, setOutput] = useState('');
   const [conversionType, setConversionType] = useState('csv-to-json');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showFullOutput, setShowFullOutput] = useState(false);
   const { theme } = useTheme();
+
+  const MAX_VISIBLE_LINES = 20;
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
@@ -15,6 +18,17 @@ const Converter = () => {
 
   const handleConversionTypeChange = (e) => {
     setConversionType(e.target.value);
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setInput(event.target.result);
+      };
+      reader.readAsText(file);
+    }
   };
 
   const handleConvert = () => {
@@ -39,6 +53,7 @@ const Converter = () => {
         ];
         setOutput(csvRows.join('\n'));
       }
+      setShowFullOutput(false);
     } catch (error) {
       setOutput('Error: Invalid input format');
     }
@@ -52,6 +67,31 @@ const Converter = () => {
     } catch (err) {
       console.error('Failed to copy text: ', err);
     }
+  };
+
+  const handleDownload = (format) => {
+    if (!output) return;
+
+    const blob = new Blob([output], { 
+      type: format === 'json' ? 'application/json' : 'text/plain' 
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `converted_output.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getTruncatedOutput = () => {
+    if (!output) return '';
+    const lines = output.split('\n');
+    if (lines.length <= MAX_VISIBLE_LINES) return output;
+    
+    const visibleLines = lines.slice(0, MAX_VISIBLE_LINES);
+    return visibleLines.join('\n') + '\n...';
   };
 
   return (
@@ -76,6 +116,20 @@ const Converter = () => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="fileUpload">Upload File</label>
+          <input
+            type="file"
+            id="fileUpload"
+            onChange={handleFileUpload}
+            accept={conversionType === 'csv-to-json' ? '.csv' : '.json'}
+            className="file-input"
+          />
+          <label htmlFor="fileUpload" className="file-upload-label">
+            Choose File
+          </label>
+        </div>
+
+        <div className="form-group">
           <label htmlFor="input">Input</label>
           <textarea
             id="input"
@@ -97,12 +151,40 @@ const Converter = () => {
           <div className="result-section active">
             <div className="result-header">
               <h2>Result</h2>
-              <button onClick={handleCopy} className="copy-button">
-                <i className="bi bi-clipboard"></i>
-                {copySuccess ? 'Copied!' : 'Copy'}
-              </button>
+              <div className="result-actions">
+                <button onClick={handleCopy} className="copy-button">
+                  <i className="bi bi-clipboard"></i>
+                  {copySuccess ? 'Copied!' : 'Copy'}
+                </button>
+                <button 
+                  onClick={() => handleDownload(conversionType === 'csv-to-json' ? 'json' : 'csv')} 
+                  className="download-button"
+                >
+                  <i className="bi bi-download"></i>
+                  Download as {conversionType === 'csv-to-json' ? 'JSON' : 'CSV'}
+                </button>
+                <button 
+                  onClick={() => handleDownload('txt')} 
+                  className="download-button"
+                >
+                  <i className="bi bi-download"></i>
+                  Download as TXT
+                </button>
+              </div>
             </div>
-            <pre className="result-content">{output}</pre>
+            <div className="result-content-wrapper">
+              <pre className="result-content">
+                {showFullOutput ? output : getTruncatedOutput()}
+              </pre>
+              {output.split('\n').length > MAX_VISIBLE_LINES && (
+                <button 
+                  onClick={() => setShowFullOutput(!showFullOutput)} 
+                  className="view-full-button"
+                >
+                  {showFullOutput ? 'Show Less' : 'View Full Code'}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
