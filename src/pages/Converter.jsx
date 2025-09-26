@@ -27,6 +27,10 @@ const Converter = () => {
   const [conversionType, setConversionType] = useState('csv-to-json');
   const [copySuccess, setCopySuccess] = useState(false);
   const [showFullOutput, setShowFullOutput] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const [warnings, setWarnings] = useState([]);
+  const [isConverting, setIsConverting] = useState(false);
+  const [delimiter, setDelimiter] = useState(',');
   const { theme } = useTheme();
 
   const structuredData = {
@@ -59,51 +63,227 @@ const Converter = () => {
   };
 
   const MAX_VISIBLE_LINES = 20;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  // Validation functions
+  const validateCSV = (csvData) => {
+    const errors = [];
+    const warnings = [];
+    
+    if (!csvData.trim()) {
+      errors.push('CSV data cannot be empty');
+      return { errors, warnings };
+    }
+
+    const lines = csvData.split('\n').filter(line => line.trim());
+    
+    if (lines.length < 2) {
+      errors.push('CSV must have at least 2 lines (header + data)');
+      return { errors, warnings };
+    }
+
+    const headers = lines[0].split(delimiter);
+    const headerCount = headers.length;
+    
+    if (headerCount === 1 && lines[0].split(',').length > 1) {
+      warnings.push('Consider using comma (,) as delimiter if your data contains commas');
+    }
+
+    // Check for consistent column count
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(delimiter);
+      if (values.length !== headerCount) {
+        errors.push(`Line ${i + 1} has ${values.length} columns, expected ${headerCount}`);
+      }
+    }
+
+    // Check for empty headers
+    const emptyHeaders = headers.filter(header => !header.trim());
+    if (emptyHeaders.length > 0) {
+      warnings.push('Some headers are empty. Consider using descriptive column names');
+    }
+
+    return { errors, warnings };
+  };
+
+  const validateJSON = (jsonData) => {
+    const errors = [];
+    const warnings = [];
+    
+    if (!jsonData.trim()) {
+      errors.push('JSON data cannot be empty');
+      return { errors, warnings };
+    }
+
+    try {
+      const parsed = JSON.parse(jsonData);
+      
+      if (!Array.isArray(parsed)) {
+        errors.push('JSON must be an array of objects');
+        return { errors, warnings };
+      }
+
+      if (parsed.length === 0) {
+        warnings.push('JSON array is empty');
+        return { errors, warnings };
+      }
+
+      // Check if all objects have the same keys
+      const firstObjectKeys = Object.keys(parsed[0]);
+      for (let i = 1; i < parsed.length; i++) {
+        const currentKeys = Object.keys(parsed[i]);
+        const missingKeys = firstObjectKeys.filter(key => !currentKeys.includes(key));
+        const extraKeys = currentKeys.filter(key => !firstObjectKeys.includes(key));
+        
+        if (missingKeys.length > 0) {
+          warnings.push(`Object at index ${i} is missing keys: ${missingKeys.join(', ')}`);
+        }
+        if (extraKeys.length > 0) {
+          warnings.push(`Object at index ${i} has extra keys: ${extraKeys.join(', ')}`);
+        }
+      }
+
+      // Check for empty values
+      const emptyValues = [];
+      parsed.forEach((obj, index) => {
+        Object.entries(obj).forEach(([key, value]) => {
+          if (value === null || value === undefined || value === '') {
+            emptyValues.push(`Object ${index + 1}, key "${key}"`);
+          }
+        });
+      });
+      
+      if (emptyValues.length > 0) {
+        warnings.push(`Found ${emptyValues.length} empty values in the data`);
+      }
+
+    } catch (error) {
+      errors.push(`Invalid JSON format: ${error.message}`);
+    }
+
+    return { errors, warnings };
+  };
+
+  const validateFile = (file) => {
+    const errors = [];
+    const warnings = [];
+
+    if (!file) {
+      errors.push('No file selected');
+      return { errors, warnings };
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      errors.push(`File size (${(file.size / 1024 / 1024).toFixed(2)}MB) exceeds maximum allowed size (5MB)`);
+    }
+
+    const expectedExtension = conversionType === 'csv-to-json' ? '.csv' : '.json';
+    if (!file.name.toLowerCase().endsWith(expectedExtension)) {
+      warnings.push(`File extension doesn't match expected format (${expectedExtension})`);
+    }
+
+    return { errors, warnings };
+  };
+
+  const clearErrors = () => {
+    setErrors([]);
+    setWarnings([]);
+  };
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
+    clearErrors();
   };
 
   const handleConversionTypeChange = (e) => {
     setConversionType(e.target.value);
+    clearErrors();
+  };
+
+  const handleDelimiterChange = (e) => {
+    setDelimiter(e.target.value);
+    clearErrors();
   };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
+    clearErrors();
+    
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setInput(event.target.result);
-      };
-      reader.readAsText(file);
+      const fileValidation = validateFile(file);
+      setErrors(fileValidation.errors);
+      setWarnings(fileValidation.warnings);
+      
+      if (fileValidation.errors.length === 0) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setInput(event.target.result);
+        };
+        reader.onerror = () => {
+          setErrors(['Failed to read file. Please try again.']);
+        };
+        reader.readAsText(file);
+      }
     }
   };
 
   const handleConvert = () => {
+    setIsConverting(true);
+    clearErrors();
+    
     try {
       if (conversionType === 'csv-to-json') {
-        const lines = input.split('\n');
-        const headers = lines[0].split(',');
-        const result = lines.slice(1).map(line => {
-          const values = line.split(',');
-          return headers.reduce((obj, header, index) => {
-            obj[header.trim()] = values[index]?.trim() || '';
+        const csvValidation = validateCSV(input);
+        setErrors(csvValidation.errors);
+        setWarnings(csvValidation.warnings);
+        
+        if (csvValidation.errors.length > 0) {
+          setIsConverting(false);
+          return;
+        }
+        
+        const lines = input.split('\n').filter(line => line.trim());
+        const headers = lines[0].split(delimiter).map(h => h.trim());
+        const result = lines.slice(1).map((line, index) => {
+          const values = line.split(delimiter);
+          return headers.reduce((obj, header, colIndex) => {
+            obj[header] = values[colIndex]?.trim() || '';
             return obj;
           }, {});
         });
+        
         setOutput(JSON.stringify(result, null, 2));
+        setShowFullOutput(false);
       } else {
+        const jsonValidation = validateJSON(input);
+        setErrors(jsonValidation.errors);
+        setWarnings(jsonValidation.warnings);
+        
+        if (jsonValidation.errors.length > 0) {
+          setIsConverting(false);
+          return;
+        }
+        
         const jsonData = JSON.parse(input);
         const headers = Object.keys(jsonData[0]);
         const csvRows = [
-          headers.join(','),
-          ...jsonData.map(row => headers.map(header => row[header]).join(','))
+          headers.join(delimiter),
+          ...jsonData.map(row => headers.map(header => {
+            const value = row[header];
+            // Handle values that contain the delimiter by wrapping in quotes
+            if (typeof value === 'string' && value.includes(delimiter)) {
+              return `"${value.replace(/"/g, '""')}"`;
+            }
+            return value || '';
+          }).join(delimiter))
         ];
         setOutput(csvRows.join('\n'));
+        setShowFullOutput(false);
       }
-      setShowFullOutput(false);
     } catch (error) {
-      setOutput('Error: Invalid input format');
+      setErrors([`Conversion failed: ${error.message}`]);
+    } finally {
+      setIsConverting(false);
     }
   };
 
@@ -167,6 +347,24 @@ const Converter = () => {
             </select>
           </div>
           
+          {conversionType === 'csv-to-json' && (
+            <div className="form-group">
+              <label htmlFor="delimiter">CSV Delimiter</label>
+              <select 
+                id="delimiter" 
+                value={delimiter}
+                onChange={handleDelimiterChange}
+                className="form-select"
+              >
+                <option value=",">Comma (,)</option>
+                <option value=";">Semicolon (;)</option>
+                <option value="\t">Tab</option>
+                <option value="|">Pipe (|)</option>
+                <option value=":">Colon (:)</option>
+              </select>
+            </div>
+          )}
+          
           <div className="form-group">
             <label htmlFor="fileUpload">Upload File</label>
             <input 
@@ -176,22 +374,79 @@ const Converter = () => {
               accept={conversionType === 'csv-to-json' ? '.csv' : '.json'}
               className="file-input"
             />
-            <label htmlFor="fileUpload" className="file-upload-label">Choose File</label>
+            <label htmlFor="fileUpload" className="file-upload-label">
+              <i className="bi bi-cloud-upload"></i>Choose File
+            </label>
+            <small className="file-info">Maximum file size: 5MB</small>
           </div>
           
           <div className="form-group">
-            <label htmlFor="input">Input</label>
+            <label htmlFor="input">Input Data</label>
             <textarea 
               id="input" 
               value={input}
               onChange={handleInputChange}
               placeholder={conversionType === 'csv-to-json' ? 'Enter CSV data (first line should be headers)' : 'Enter JSON array of objects'}
-              className="form-control"
+              className={`form-control ${errors.length > 0 ? 'error' : ''}`}
+              rows="8"
             />
+            <small className="input-info">
+              {conversionType === 'csv-to-json' 
+                ? 'First line should contain column headers, each row on a new line' 
+                : 'Enter a valid JSON array of objects'
+              }
+            </small>
           </div>
           
-          <button onClick={handleConvert} className="convert-button">
-            <i className="bi bi-arrow-left-right"></i>Convert
+          {/* Error and Warning Display */}
+          {errors.length > 0 && (
+            <div className="error-container">
+              <div className="error-header">
+                <i className="bi bi-exclamation-triangle-fill"></i>
+                <span>Errors Found ({errors.length})</span>
+              </div>
+              <ul className="error-list">
+                {errors.map((error, index) => (
+                  <li key={index} className="error-item">
+                    <i className="bi bi-x-circle"></i>
+                    {error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {warnings.length > 0 && (
+            <div className="warning-container">
+              <div className="warning-header">
+                <i className="bi bi-exclamation-triangle"></i>
+                <span>Warnings ({warnings.length})</span>
+              </div>
+              <ul className="warning-list">
+                {warnings.map((warning, index) => (
+                  <li key={index} className="warning-item">
+                    <i className="bi bi-info-circle"></i>
+                    {warning}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <button 
+            onClick={handleConvert} 
+            className="convert-button"
+            disabled={isConverting || errors.length > 0 || !input.trim()}
+          >
+            {isConverting ? (
+              <>
+                <i className="bi bi-arrow-clockwise spin"></i>Converting...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-arrow-left-right"></i>Convert
+              </>
+            )}
           </button>
           
           {output && (
