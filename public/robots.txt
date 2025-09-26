@@ -1,14 +1,52 @@
-# Allow all crawlers
+# Modern SEO Robots.txt for 2025
+# Konverter - Professional Data Format & Code Minifier
+
+# Allow all major search engines
 User-agent: *
 Allow: /
 
 # Sitemap location
 Sitemap: https://Kon-verter.web.app/sitemap.xml
 
-# Crawl-delay
-Crawl-delay: 10
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Specific search engine optimizations
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 1
 
 # Disallow admin and private areas
 Disallow: /admin/
 Disallow: /private/
-Disallow: /api/ 
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /node_modules/
+
+# Allow important files
+Allow: /favicon.ico
+Allow: /robots.txt
+Allow: /sitemap.xml
+Allow: /site.webmanifest
+Allow: /icons/ 

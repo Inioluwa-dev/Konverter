@@ -1,1 +1,288 @@
-import React,{useState}from 'react';import{Container,Form,Button,Alert}from 'react-bootstrap';import '../styles/Minifier.css';import{useTheme}from '../context/ThemeContext';import*as csso from 'csso';import*as Terser from 'terser';import{html as beautifyHTML,css as beautifyCSS,js as beautifyJS}from 'js-beautify';const minifyHTML=(html)=>{return html .replace(/<!--[\s\S]*?-->/g,'').replace(/>\s+</g,'><').trim().replace(/\s+/g,' ').replace(/\s*<\s*/g,'<').replace(/\s*>\s*/g,'>').replace(/\s*=\s*/g,'=').replace(/\s+/g,' ');};const minifyJSX=(code)=>{return code .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'').replace(/\s+/g,' ').replace(/\s*([=+\-*/<>{}[\]()])\s*/g,'$1').replace(/\s*,\s*/g,',').replace(/\s*;\s*/g,';').replace(/\s*:\s*/g,':').replace(/>\s+</g,'><').trim();};const unminifyCode=(code,codeType)=>{try{switch(codeType){case 'html':return beautifyHTML(code,{indent_size:2,space_in_empty_paren:true});case 'css':return beautifyCSS(code,{indent_size:2});case 'js':case 'jsx':return beautifyJS(code,{indent_size:2,brace_style:'expand'});default:throw new Error('Invalid code type for unminification');}}catch(err){throw new Error('Unminification failed:'+err.message);}};const Minifier=()=>{const[code,setCode]=useState('');const[minifiedCode,setMinifiedCode]=useState('');const[unminifiedCode,setUnminifiedCode]=useState('');const[codeType,setCodeType]=useState('html');const[error,setError]=useState('');const[stats,setStats]=useState(null);const[copySuccess,setCopySuccess]=useState(false);const{theme}=useTheme();const minifyCode=async()=>{try{setError('');setStats(null);setUnminifiedCode('');let result;let originalSize=new Blob([code]).size;let minifiedSize;switch(codeType){case 'jsx':try{result=minifyJSX(code);setMinifiedCode(result);minifiedSize=new Blob([result]).size;}catch(err){throw new Error('Invalid JSX:'+err.message);}break;case 'css':try{result=csso.minify(code);setMinifiedCode(result.css);minifiedSize=new Blob([result.css]).size;}catch(err){throw new Error('Invalid CSS:'+err.message);}break;case 'js':result=await Terser.minify(code);if(result.error){throw new Error(result.error.message);}setMinifiedCode(result.code);minifiedSize=new Blob([result.code]).size;break;case 'html':try{result=minifyHTML(code);setMinifiedCode(result);minifiedSize=new Blob([result]).size;}catch(err){throw new Error('Invalid HTML:'+err.message);}break;default:throw new Error('Invalid code type');}const savings=((originalSize-minifiedSize)/originalSize*100).toFixed(2);setStats({originalSize:formatSize(originalSize),minifiedSize:formatSize(minifiedSize),savings:`${savings}%`,});}catch(err){setError(err.message);setMinifiedCode('');}};const handleUnminify=()=>{try{setError('');setStats(null);setMinifiedCode('');const result=unminifyCode(code,codeType);setUnminifiedCode(result);const originalSize=new Blob([code]).size;const unminifiedSize=new Blob([result]).size;const sizeChange=((unminifiedSize-originalSize)/originalSize*100).toFixed(2);setStats({originalSize:formatSize(originalSize),unminifiedSize:formatSize(unminifiedSize),sizeChange:`${sizeChange}%`,});}catch(err){setError(err.message);setUnminifiedCode('');}};const formatSize=(bytes)=>{if(bytes===0)return '0 Bytes';const k=1024;const sizes=['Bytes','KB','MB'];const i=Math.floor(Math.log(bytes)/Math.log(k));return parseFloat((bytes/Math.pow(k,i)).toFixed(2))+' '+sizes[i];};const copyToClipboard=async()=>{try{const textToCopy=minifiedCode || unminifiedCode || code;await navigator.clipboard.writeText(textToCopy);setCopySuccess(true);setTimeout(()=>setCopySuccess(false),2000);}catch(err){setError('Failed to copy to clipboard');}};const downloadMinifiedCode=()=>{const textToDownload=minifiedCode || unminifiedCode || code;const blob=new Blob([textToDownload],{type:getMimeType(codeType)});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`${minifiedCode ? 'minified':'unminified'}.${getFileExtension(codeType)}`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);};const getMimeType=(type)=>{switch(type){case 'html':return 'text/html';case 'css':return 'text/css';case 'js':return 'application/javascript';case 'jsx':return 'text/jsx';default:return 'text/plain';}};const getFileExtension=(type)=>{switch(type){case 'html':return 'html';case 'css':return 'css';case 'js':return 'js';case 'jsx':return 'jsx';default:return 'txt';}};return(<div className={`minifier-container ${theme==='dark' ? 'dark':''}`}><div className="minifier-header"><h1>Code Minifier & Formatter</h1><p>Minify or format your HTML,CSS,JavaScript,or JSX code to optimize or improve readability.</p></div><div className="minifier-form"><Form.Group className="code-type-selector"><Form.Select value={codeType}onChange={(e)=>setCodeType(e.target.value)}><option value="html">HTML</option><option value="css">CSS</option><option value="js">JavaScript</option><option value="jsx">JSX</option></Form.Select></Form.Group><Form.Group><Form.Control as="textarea" className="code-input" value={code}onChange={(e)=>setCode(e.target.value)}placeholder={`Enter your ${codeType.toUpperCase()}code here...`}/></Form.Group><div className="button-group"><Button className="minify-button" onClick={minifyCode}disabled={!code.trim()}variant="primary">Minify Code</Button><Button className="unminify-button" onClick={handleUnminify}disabled={!code.trim()}variant="secondary">Format Code</Button></div>{error &&(<Alert variant="danger" className="mt-3">{error}</Alert>)}{(minifiedCode || unminifiedCode)&&(<div className="result-container"><div className="result-header"><h3>{minifiedCode ? 'Minified Result':'Formatted Result'}</h3><div className="result-actions"><Button className="action-button copy-button" onClick={copyToClipboard}variant="outline-primary">{copySuccess ? 'Copied!':'Copy to Clipboard'}</Button><Button className="action-button download-button" onClick={downloadMinifiedCode}variant="outline-success">Download</Button></div></div><pre className="minified-output">{minifiedCode || unminifiedCode}</pre>{stats &&(<div className="stats"><p>Original Size:{stats.originalSize}</p>{stats.minifiedSize &&<p>Minified Size:{stats.minifiedSize}</p>}{stats.unminifiedSize &&<p>Formatted Size:{stats.unminifiedSize}</p>}{stats.savings &&<p>Size Reduction:{stats.savings}</p>}{stats.sizeChange &&<p>Size Change:{stats.sizeChange}</p>}</div>)}</div>)}</div></div>);};export default Minifier;
+import React, { useState } from 'react';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
+import '../styles/Minifier.css';
+import { useTheme } from '../context/ThemeContext';
+import SEO from '../components/SEO';
+import * as csso from 'csso';
+import * as Terser from 'terser';
+import { html as beautifyHTML, css as beautifyCSS, js as beautifyJS } from 'js-beautify';const minifyHTML=(html)=>{return html .replace(/<!--[\s\S]*?-->/g,'').replace(/>\s+</g,'><').trim().replace(/\s+/g,' ').replace(/\s*<\s*/g,'<').replace(/\s*>\s*/g,'>').replace(/\s*=\s*/g,'=').replace(/\s+/g,' ');};const minifyJSX=(code)=>{return code .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g,'').replace(/\s+/g,' ').replace(/\s*([=+\-*/<>{}[\]()])\s*/g,'$1').replace(/\s*,\s*/g,',').replace(/\s*;\s*/g,';').replace(/\s*:\s*/g,':').replace(/>\s+</g,'><').trim();};const unminifyCode=(code,codeType)=>{try{switch(codeType){case 'html':return beautifyHTML(code,{indent_size:2,space_in_empty_paren:true});case 'css':return beautifyCSS(code,{indent_size:2});case 'js':case 'jsx':return beautifyJS(code,{indent_size:2,brace_style:'expand'});default:throw new Error('Invalid code type for unminification');}}catch(err){throw new Error('Unminification failed:'+err.message);}};const Minifier = () => {
+  const [code, setCode] = useState('');
+  const [minifiedCode, setMinifiedCode] = useState('');
+  const [unminifiedCode, setUnminifiedCode] = useState('');
+  const [codeType, setCodeType] = useState('html');
+  const [error, setError] = useState('');
+  const [stats, setStats] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const { theme } = useTheme();
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Code Minifier & Formatter - Konverter",
+    "description": "Minify or format your HTML, CSS, JavaScript, or JSX code to optimize performance or improve readability. Professional code minification tool with real-time processing.",
+    "url": "https://Kon-verter.web.app/minifier",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "HTML minification",
+      "CSS minification",
+      "JavaScript minification",
+      "JSX minification",
+      "Code formatting",
+      "Size optimization",
+      "Copy to clipboard",
+      "Download minified code"
+    ],
+    "creator": {
+      "@type": "Organization",
+      "name": "Comibyte Team",
+      "url": "https://Kon-verter.web.app"
+    }
+  };
+
+  const minifyCode = async () => {
+    try {
+      setError('');
+      setStats(null);
+      setUnminifiedCode('');
+      let result;
+      let originalSize = new Blob([code]).size;
+      let minifiedSize;
+
+      switch (codeType) {
+        case 'jsx':
+          try {
+            result = minifyJSX(code);
+            setMinifiedCode(result);
+            minifiedSize = new Blob([result]).size;
+          } catch (err) {
+            throw new Error('Invalid JSX: ' + err.message);
+          }
+          break;
+        case 'css':
+          try {
+            result = csso.minify(code);
+            setMinifiedCode(result.css);
+            minifiedSize = new Blob([result.css]).size;
+          } catch (err) {
+            throw new Error('Invalid CSS: ' + err.message);
+          }
+          break;
+        case 'js':
+          result = await Terser.minify(code);
+          if (result.error) {
+            throw new Error(result.error.message);
+          }
+          setMinifiedCode(result.code);
+          minifiedSize = new Blob([result.code]).size;
+          break;
+        case 'html':
+          try {
+            result = minifyHTML(code);
+            setMinifiedCode(result);
+            minifiedSize = new Blob([result]).size;
+          } catch (err) {
+            throw new Error('Invalid HTML: ' + err.message);
+          }
+          break;
+        default:
+          throw new Error('Invalid code type');
+      }
+
+      const savings = ((originalSize - minifiedSize) / originalSize * 100).toFixed(2);
+      setStats({
+        originalSize: formatSize(originalSize),
+        minifiedSize: formatSize(minifiedSize),
+        savings: `${savings}%`,
+      });
+    } catch (err) {
+      setError(err.message);
+      setMinifiedCode('');
+    }
+  };
+
+  const handleUnminify = () => {
+    try {
+      setError('');
+      setStats(null);
+      setMinifiedCode('');
+      const result = unminifyCode(code, codeType);
+      setUnminifiedCode(result);
+      const originalSize = new Blob([code]).size;
+      const unminifiedSize = new Blob([result]).size;
+      const sizeChange = ((unminifiedSize - originalSize) / originalSize * 100).toFixed(2);
+      setStats({
+        originalSize: formatSize(originalSize),
+        unminifiedSize: formatSize(unminifiedSize),
+        sizeChange: `${sizeChange}%`,
+      });
+    } catch (err) {
+      setError(err.message);
+      setUnminifiedCode('');
+    }
+  };
+
+  const formatSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      const textToCopy = minifiedCode || unminifiedCode || code;
+      await navigator.clipboard.writeText(textToCopy);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      setError('Failed to copy to clipboard');
+    }
+  };
+
+  const downloadMinifiedCode = () => {
+    const textToDownload = minifiedCode || unminifiedCode || code;
+    const blob = new Blob([textToDownload], { type: getMimeType(codeType) });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${minifiedCode ? 'minified' : 'unminified'}.${getFileExtension(codeType)}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const getMimeType = (type) => {
+    switch (type) {
+      case 'html': return 'text/html';
+      case 'css': return 'text/css';
+      case 'js': return 'application/javascript';
+      case 'jsx': return 'text/jsx';
+      default: return 'text/plain';
+    }
+  };
+
+  const getFileExtension = (type) => {
+    switch (type) {
+      case 'html': return 'html';
+      case 'css': return 'css';
+      case 'js': return 'js';
+      case 'jsx': return 'jsx';
+      default: return 'txt';
+    }
+  };
+
+  return (
+    <>
+      <SEO
+        title="Code Minifier & Formatter - Konverter"
+        description="Minify or format your HTML, CSS, JavaScript, or JSX code to optimize performance or improve readability. Professional code minification tool with real-time processing. Free to use."
+        keywords="code minifier, HTML minifier, CSS minifier, JavaScript minifier, JSX minifier, code formatter, minify code, optimize code, comibyte, konverter"
+        url="/minifier"
+        structuredData={structuredData}
+      />
+      <div className={`minifier-container ${theme === 'dark' ? 'dark' : ''}`}>
+        <div className="minifier-header">
+          <h1>Code Minifier & Formatter</h1>
+          <p>Minify or format your HTML, CSS, JavaScript, or JSX code to optimize or improve readability.</p>
+        </div>
+        
+        <div className="minifier-form">
+          <Form.Group className="code-type-selector">
+            <Form.Select 
+              value={codeType}
+              onChange={(e) => setCodeType(e.target.value)}
+            >
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="js">JavaScript</option>
+              <option value="jsx">JSX</option>
+            </Form.Select>
+          </Form.Group>
+          
+          <Form.Group>
+            <Form.Control 
+              as="textarea" 
+              className="code-input" 
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder={`Enter your ${codeType.toUpperCase()} code here...`}
+            />
+          </Form.Group>
+          
+          <div className="button-group">
+            <Button 
+              className="minify-button" 
+              onClick={minifyCode}
+              disabled={!code.trim()}
+              variant="primary"
+            >
+              Minify Code
+            </Button>
+            <Button 
+              className="unminify-button" 
+              onClick={handleUnminify}
+              disabled={!code.trim()}
+              variant="secondary"
+            >
+              Format Code
+            </Button>
+          </div>
+          
+          {error && (
+            <Alert variant="danger" className="mt-3">
+              {error}
+            </Alert>
+          )}
+          
+          {(minifiedCode || unminifiedCode) && (
+            <div className="result-container">
+              <div className="result-header">
+                <h3>{minifiedCode ? 'Minified Result' : 'Formatted Result'}</h3>
+                <div className="result-actions">
+                  <Button 
+                    className="action-button copy-button" 
+                    onClick={copyToClipboard}
+                    variant="outline-primary"
+                  >
+                    {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
+                  </Button>
+                  <Button 
+                    className="action-button download-button" 
+                    onClick={downloadMinifiedCode}
+                    variant="outline-success"
+                  >
+                    Download
+                  </Button>
+                </div>
+              </div>
+              
+              <pre className="minified-output">
+                {minifiedCode || unminifiedCode}
+              </pre>
+              
+              {stats && (
+                <div className="stats">
+                  <p>Original Size: {stats.originalSize}</p>
+                  {stats.minifiedSize && <p>Minified Size: {stats.minifiedSize}</p>}
+                  {stats.unminifiedSize && <p>Formatted Size: {stats.unminifiedSize}</p>}
+                  {stats.savings && <p>Size Reduction: {stats.savings}</p>}
+                  {stats.sizeChange && <p>Size Change: {stats.sizeChange}</p>}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Minifier;
